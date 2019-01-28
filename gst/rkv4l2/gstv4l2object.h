@@ -62,7 +62,7 @@ typedef enum {
   GST_V4L2_IO_USERPTR       = 3,
   GST_V4L2_IO_DMABUF        = 4,
   GST_V4L2_IO_DMABUF_IMPORT = 5
-} GstV4l2IOMode;
+} GstRKV4l2IOMode;
 
 typedef gboolean  (*GstV4l2GetInOutFunction)  (GstV4l2Object * v4l2object, gint * input);
 typedef gboolean  (*GstV4l2SetInOutFunction)  (GstV4l2Object * v4l2object, gint input);
@@ -121,7 +121,7 @@ struct _GstV4l2Object {
 
   /* the video-device's file descriptor */
   gint video_fd;
-  GstV4l2IOMode mode;
+  GstRKV4l2IOMode mode;
 
   gboolean active;
   gboolean streaming;
@@ -156,7 +156,7 @@ struct _GstV4l2Object {
   guint32 min_buffers;
 
   /* wanted mode */
-  GstV4l2IOMode req_mode;
+  GstRKV4l2IOMode req_mode;
 
   /* optional pool */
   GstBufferPool *pool;

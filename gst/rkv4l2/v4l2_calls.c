@@ -35,12 +35,12 @@
 #include <unistd.h>
 #include "gstv4l2object.h"
 #include "gstv4l2colorbalance.h"
-#include "gstv4l2src.h"
+#include "gstrkv4l2src.h"
 
 #include "gst/gst-i18n-plugin.h"
 
-GST_DEBUG_CATEGORY_EXTERN (v4l2_debug);
-#define GST_CAT_DEFAULT v4l2_debug
+GST_DEBUG_CATEGORY_EXTERN (rkv4l2_debug);
+#define GST_CAT_DEFAULT rkv4l2_debug
 
 /******************************************************
  * gst_v4l2_get_capabilities():
@@ -393,7 +393,7 @@ gst_v4l2_open (GstV4l2Object * v4l2object)
     goto error;
 
   /* do we need to be a capture device? */
-  if (GST_IS_V4L2SRC (v4l2object->element) &&
+  if (GST_IS_RKV4L2SRC (v4l2object->element) &&
       !(v4l2object->device_caps & (V4L2_CAP_VIDEO_CAPTURE |
               V4L2_CAP_VIDEO_CAPTURE_MPLANE)))
     goto not_capture;

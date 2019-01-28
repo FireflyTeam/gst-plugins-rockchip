@@ -1,15 +1,13 @@
-v4l2 plugins
+rkv4l2 plugins
 ============
 
 The idea is a bit the same as the idea for the v4l1 plugins. We want
-one generic v4l2element, and a few child objects (probably only two:
-v4l2src and v4l2sink):
+one generic rkv4l2element, and a few child objects (probably only one:
+rkv4l2src):
 
-                /-------- v4l2src
-v4l2element ---=
-                \-------- v4l2sink
+v4l2element ---= -------- v4l2src
 
-Both v4l2src and v4l2sink have a uncompressed and a compressed
+The rkv4l2src have a uncompressed and a compressed
 recording-/playback-mode. Since this is all part of v4l2, the 'client'
 of these elements, i.e. an application using v4l2src/v4l2sink, will
 hardly notice this. All capsnego stuff is done inside, and the plugin

@@ -42,8 +42,8 @@
 
 #include <gst/video/video.h>
 
-GST_DEBUG_CATEGORY_EXTERN (v4l2_debug);
-#define GST_CAT_DEFAULT v4l2_debug
+GST_DEBUG_CATEGORY_EXTERN (rkv4l2_debug);
+#define GST_CAT_DEFAULT rkv4l2_debug
 
 #define DEFAULT_PROP_DEVICE_NAME        NULL
 #define DEFAULT_PROP_DEVICE_FD          -1
@@ -212,7 +212,7 @@ gst_v4l2_device_get_type (void)
     };
 
     v4l2_device_type =
-        g_flags_register_static ("GstV4l2DeviceTypeFlags", values);
+        g_flags_register_static ("GstRKV4l2DeviceTypeFlags", values);
   }
 
   return v4l2_device_type;
@@ -235,7 +235,7 @@ gst_v4l2_io_mode_get_type (void)
 
       {0, NULL, NULL}
     };
-    v4l2_io_mode = g_enum_register_static ("GstV4l2IOMode", io_modes);
+    v4l2_io_mode = g_enum_register_static ("GstRKV4l2IOMode", io_modes);
   }
   return v4l2_io_mode;
 }
@@ -261,7 +261,7 @@ gst_v4l2_object_install_properties_helper (GObjectClass * gobject_class,
           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   /**
-   * GstV4l2Src:brightness:
+   * GstRKV4l2Src:brightness:
    *
    * Picture brightness, or more precisely, the black level
    */
@@ -271,7 +271,7 @@ gst_v4l2_object_install_properties_helper (GObjectClass * gobject_class,
           G_MAXINT, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | GST_PARAM_CONTROLLABLE));
   /**
-   * GstV4l2Src:contrast:
+   * GstRKV4l2Src:contrast:
    *
    * Picture contrast or luma gain
    */
@@ -281,7 +281,7 @@ gst_v4l2_object_install_properties_helper (GObjectClass * gobject_class,
           G_MAXINT, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | GST_PARAM_CONTROLLABLE));
   /**
-   * GstV4l2Src:saturation:
+   * GstRKV4l2Src:saturation:
    *
    * Picture color saturation or chroma gain
    */
@@ -291,7 +291,7 @@ gst_v4l2_object_install_properties_helper (GObjectClass * gobject_class,
           G_MAXINT, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | GST_PARAM_CONTROLLABLE));
   /**
-   * GstV4l2Src:hue:
+   * GstRKV4l2Src:hue:
    *
    * Hue or color balance
    */
@@ -302,7 +302,7 @@ gst_v4l2_object_install_properties_helper (GObjectClass * gobject_class,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS | GST_PARAM_CONTROLLABLE));
 
   /**
-   * GstV4l2Src:io-mode:
+   * GstRKV4l2Src:io-mode:
    *
    * IO Mode
    */
@@ -313,7 +313,7 @@ gst_v4l2_object_install_properties_helper (GObjectClass * gobject_class,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /**
-   * GstV4l2Src:extra-controls:
+   * GstRKV4l2Src:extra-controls:
    *
    * Additional v4l2 controls for the device. The controls are identified
    * by the control name (lowercase with '_' for any non-alphanumeric
@@ -327,7 +327,7 @@ gst_v4l2_object_install_properties_helper (GObjectClass * gobject_class,
           GST_TYPE_STRUCTURE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /**
-   * GstV4l2Src:pixel-aspect-ratio:
+   * GstRKV4l2Src:pixel-aspect-ratio:
    *
    * The pixel aspect ratio of the device. This overwrites the pixel aspect
    * ratio queried from the device.
@@ -340,7 +340,7 @@ gst_v4l2_object_install_properties_helper (GObjectClass * gobject_class,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /**
-   * GstV4l2Src:force-aspect-ratio:
+   * GstRKV4l2Src:force-aspect-ratio:
    *
    * When enabled, the pixel aspect ratio queried from the device or set
    * with the pixel-aspect-ratio property will be enforced.
@@ -1712,7 +1712,7 @@ gst_v4l2_object_add_aspect_ratio (GstV4l2Object * v4l2object, GstStructure * s)
 
 /* returns TRUE if the value was changed in place, otherwise FALSE */
 static gboolean
-gst_v4l2src_value_simplify (GValue * val)
+gst_rkv4l2src_value_simplify (GValue * val)
 {
   /* simplify list of one value to one value */
   if (GST_VALUE_HOLDS_LIST (val) && gst_value_list_get_size (val) == 1) {
@@ -2029,7 +2029,7 @@ gst_v4l2_object_add_interlace_mode (GstV4l2Object * v4l2object,
     gst_value_list_append_and_take_value (&interlace_formats, &interlace_enum);
   }
 
-  if (gst_v4l2src_value_simplify (&interlace_formats)
+  if (gst_rkv4l2src_value_simplify (&interlace_formats)
       || gst_value_list_get_size (&interlace_formats) > 0)
     gst_structure_take_value (s, "interlace-mode", &interlace_formats);
   else
@@ -2309,7 +2309,7 @@ return_data:
   }
 
   if (G_IS_VALUE (&rates)) {
-    gst_v4l2src_value_simplify (&rates);
+    gst_rkv4l2src_value_simplify (&rates);
     /* only change the framerate on the template when we have a valid probed new
      * value */
     gst_structure_take_value (s, "framerate", &rates);
@@ -2704,7 +2704,7 @@ gst_v4l2_object_is_dmabuf_supported (GstV4l2Object * v4l2object)
 static gboolean
 gst_v4l2_object_setup_pool (GstV4l2Object * v4l2object, GstCaps * caps)
 {
-  GstV4l2IOMode mode;
+  GstRKV4l2IOMode mode;
 
   GST_DEBUG_OBJECT (v4l2object->dbg_obj, "initializing the %s system",
       V4L2_TYPE_IS_OUTPUT (v4l2object->type) ? "output" : "capture");

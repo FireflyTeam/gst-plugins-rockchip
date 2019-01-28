@@ -3,7 +3,7 @@
  * Copyright (C) 2001-2002 Ronald Bultje <rbultje@ronald.bitfreak.net>
  *               2006 Edgard Lima <edgard.lima@gmail.com>
  *
- * gstv4l2src.h: BT8x8/V4L2 source element
+ * gstrkv4l2src.h: BT8x8/V4L2 source element
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -21,34 +21,34 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#ifndef __GST_V4L2SRC_H__
-#define __GST_V4L2SRC_H__
+#ifndef __GST_RKV4L2SRC_H__
+#define __GST_RKV4L2SRC_H__
 
 #include <gstv4l2object.h>
 #include <gstv4l2bufferpool.h>
 
 G_BEGIN_DECLS
 
-#define GST_TYPE_V4L2SRC \
-  (gst_v4l2src_get_type())
-#define GST_V4L2SRC(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_V4L2SRC,GstV4l2Src))
-#define GST_V4L2SRC_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_V4L2SRC,GstV4l2SrcClass))
-#define GST_IS_V4L2SRC(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_V4L2SRC))
-#define GST_IS_V4L2SRC_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_V4L2SRC))
+#define GST_TYPE_RKV4L2SRC \
+  (gst_rkv4l2src_get_type())
+#define GST_RKV4L2SRC(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj),GST_TYPE_RKV4L2SRC,GstRKV4l2Src))
+#define GST_RKV4L2SRC_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST((klass),GST_TYPE_RKV4L2SRC,GstRKV4l2SrcClass))
+#define GST_IS_RKV4L2SRC(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj),GST_TYPE_RKV4L2SRC))
+#define GST_IS_RKV4L2SRC_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE((klass),GST_TYPE_RKV4L2SRC))
 
-typedef struct _GstV4l2Src GstV4l2Src;
-typedef struct _GstV4l2SrcClass GstV4l2SrcClass;
+typedef struct _GstRKV4l2Src GstRKV4l2Src;
+typedef struct _GstRKV4l2SrcClass GstRKV4l2SrcClass;
 
 /**
- * GstV4l2Src:
+ * GstRKV4l2Src:
  *
  * Opaque object.
  */
-struct _GstV4l2Src
+struct _GstRKV4l2Src
 {
   GstPushSrc pushsrc;
 
@@ -69,15 +69,15 @@ struct _GstV4l2Src
   gboolean has_bad_timestamp;
 };
 
-struct _GstV4l2SrcClass
+struct _GstRKV4l2SrcClass
 {
   GstPushSrcClass parent_class;
 
   GList *v4l2_class_devices;
 };
 
-GType gst_v4l2src_get_type (void);
+GType gst_rkv4l2src_get_type (void);
 
 G_END_DECLS
 
-#endif /* __GST_V4L2SRC_H__ */
+#endif /* __GST_RKV4L2SRC_H__ */

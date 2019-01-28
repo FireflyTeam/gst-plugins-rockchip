@@ -1092,8 +1092,8 @@ gst_v4l2_transform_class_init (GstV4l2TransformClass * klass)
   gobject_class = (GObjectClass *) klass;
   base_transform_class = (GstBaseTransformClass *) klass;
 
-  GST_DEBUG_CATEGORY_INIT (gst_v4l2_transform_debug, "v4l2transform", 0,
-      "V4L2 Converter");
+  GST_DEBUG_CATEGORY_INIT (gst_v4l2_transform_debug, "rkv4l2transform", 0,
+      "V4L2 Rockchip Converter");
 
   gst_element_class_set_static_metadata (element_class,
       "V4L2 Video Converter",
