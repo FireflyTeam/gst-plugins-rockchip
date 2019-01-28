@@ -4,12 +4,10 @@ include $(top_srcdir)/common/gst-glib-gen.mak
 
 libgstrkv4l2_la_SOURCES = gstrkv4l2.c \
 				gstv4l2allocator.c \
-				gstv4l2colorbalance.c \
 				gstv4l2object.c \
 				gstv4l2bufferpool.c \
 				gstrkv4l2src.c \
 				gstv4l2transform.c \
-				gstv4l2vidorient.c \
 				v4l2_calls.c \
 				v4l2-utils.c
 
@@ -37,7 +35,6 @@ noinst_HEADERS = \
 	ext/videodev2.h \
 	gstv4l2allocator.h \
 	gstv4l2bufferpool.h \
-	gstv4l2colorbalance.h \
 	gstv4l2object.h \
 	gstrkv4l2src.h \
 	gstv4l2transform.h \

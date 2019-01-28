@@ -50,8 +50,6 @@
 #include <gst/video/gstvideopool.h>
 
 #include "gstrkv4l2src.h"
-#include "gstv4l2colorbalance.h"
-#include "gstv4l2vidorient.h"
 
 #include "gst/gst-i18n-plugin.h"
 
@@ -76,19 +74,12 @@ enum
 
 static guint gst_v4l2_signals[LAST_SIGNAL] = { 0 };
 
-GST_IMPLEMENT_V4L2_COLOR_BALANCE_METHODS (GstRKV4l2Src, gst_rkv4l2src);
-GST_IMPLEMENT_V4L2_VIDORIENT_METHODS (GstRKV4l2Src, gst_rkv4l2src);
-
 static void gst_rkv4l2src_uri_handler_init (gpointer g_iface,
     gpointer iface_data);
 
 #define gst_rkv4l2src_parent_class parent_class
 G_DEFINE_TYPE_WITH_CODE (GstRKV4l2Src, gst_rkv4l2src, GST_TYPE_PUSH_SRC,
-    G_IMPLEMENT_INTERFACE (GST_TYPE_URI_HANDLER, gst_rkv4l2src_uri_handler_init);
-    G_IMPLEMENT_INTERFACE (GST_TYPE_COLOR_BALANCE,
-        gst_rkv4l2src_color_balance_interface_init);
-    G_IMPLEMENT_INTERFACE (GST_TYPE_VIDEO_ORIENTATION,
-        gst_rkv4l2src_video_orientation_interface_init));
+    G_IMPLEMENT_INTERFACE (GST_TYPE_URI_HANDLER, gst_rkv4l2src_uri_handler_init));
 
 static void gst_rkv4l2src_finalize (GstRKV4l2Src * rkv4l2src);
 

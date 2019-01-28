@@ -36,7 +36,6 @@
 
 #include "ext/videodev2.h"
 #include "gstv4l2object.h"
-#include "gstv4l2colorbalance.h"
 
 #include "gst/gst-i18n-plugin.h"
 
