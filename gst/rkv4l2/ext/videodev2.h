@@ -53,8 +53,8 @@
  *              Hans Verkuil <hverkuil@xs4all.nl>
  *		et al.
  */
-#ifndef _UAPI__LINUX_VIDEODEV2_H
-#define _UAPI__LINUX_VIDEODEV2_H
+#ifndef __LINUX_VIDEODEV2_H
+#define __LINUX_VIDEODEV2_H
 
 #include <sys/time.h>
 #include <sys/ioctl.h>
@@ -2395,4 +2395,4 @@ struct v4l2_create_buffers {
 
 #define BASE_VIDIOC_PRIVATE	192		/* 192-255 are private */
 
-#endif /* _UAPI__LINUX_VIDEODEV2_H */
+#endif /* __LINUX_VIDEODEV2_H */
