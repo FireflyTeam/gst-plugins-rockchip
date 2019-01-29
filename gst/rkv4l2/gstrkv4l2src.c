@@ -49,6 +49,7 @@
 #include <gst/video/gstvideometa.h>
 #include <gst/video/gstvideopool.h>
 
+#include "common.h"
 #include "gstrkv4l2src.h"
 
 #include "gst/gst-i18n-plugin.h"
@@ -127,7 +128,7 @@ gst_rkv4l2src_class_init (GstRKV4l2SrcClass * klass)
 
   gst_v4l2_object_install_properties_helper (gobject_class,
       DEFAULT_PROP_DEVICE);
-
+  rk_common_install_rockchip_properties_helper (gobject_class);
   /**
    * GstRKV4l2Src::prepare-format:
    * @rkv4l2src: the rkv4l2src instance
@@ -205,10 +206,13 @@ gst_rkv4l2src_set_property (GObject * object,
 
   if (!gst_v4l2_object_set_property_helper (rkv4l2src->v4l2object,
           prop_id, value, pspec)) {
-    switch (prop_id) {
-      default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-        break;
+    if (!rk_common_set_property_helper (rkv4l2src->v4l2object,
+        prop_id, value, pspec)) {
+      switch (prop_id) {
+        default:
+          G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+          break;
+      }
     }
   }
 }
@@ -221,10 +225,13 @@ gst_rkv4l2src_get_property (GObject * object,
 
   if (!gst_v4l2_object_get_property_helper (rkv4l2src->v4l2object,
           prop_id, value, pspec)) {
-    switch (prop_id) {
-      default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-        break;
+    if (!rk_common_get_property_helper (rkv4l2src->v4l2object,
+            prop_id, value, pspec)) {
+      switch (prop_id) {
+        default:
+          G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+          break;
+      }
     }
   }
 }
@@ -714,6 +721,8 @@ static gboolean
 gst_rkv4l2src_start (GstBaseSrc * src)
 {
   GstRKV4l2Src *rkv4l2src = GST_RKV4L2SRC (src);
+  struct v4l2_capability capability;
+  int fd;
 
   rkv4l2src->offset = 0;
   rkv4l2src->renegotiation_adjust = 0;
@@ -725,6 +734,56 @@ gst_rkv4l2src_start (GstBaseSrc * src)
   rkv4l2src->has_bad_timestamp = FALSE;
   rkv4l2src->last_timestamp = 0;
 
+  fd = open(rkv4l2src->v4l2object->videodev, O_RDONLY);
+  if (fd < 0) {
+        GST_ERROR_OBJECT (rkv4l2src, "Can't open %s node", rkv4l2src->v4l2object->videodev);
+  }
+
+  if (ioctl(fd, VIDIOC_QUERYCAP, &capability) < 0) {
+    GST_ERROR_OBJECT (rkv4l2src, "Video device %s query capability not supported.", rkv4l2src->v4l2object->videodev);
+    close(fd);
+    return FALSE;
+  }
+  close(fd);
+
+  if (strstr((char*)(capability.driver), "rkisp")) {
+    rkv4l2src->controller =
+        gst_media_controller_new_by_vnode (rkv4l2src->v4l2object->videodev);
+    if (!rkv4l2src->controller){
+      GST_DEBUG_OBJECT (rkv4l2src,
+          "Can't find controller, maybe use a wrong video-node or wrong permission to media node");
+        return FALSE;
+    }
+
+    rkv4l2src->main_path =
+        gst_media_find_entity_by_name (rkv4l2src->controller, "rkisp1_mainpath");
+    rkv4l2src->self_path =
+        gst_media_find_entity_by_name (rkv4l2src->controller, "rkisp1_selfpath");
+    rkv4l2src->isp_subdev =
+        gst_media_find_entity_by_name (rkv4l2src->controller, "rkisp1-isp-subdev");
+    rkv4l2src->isp_params_dev =
+        gst_media_find_entity_by_name (rkv4l2src->controller,
+        "rkisp1-input-params");
+    rkv4l2src->isp_stats_dev =
+        gst_media_find_entity_by_name (rkv4l2src->controller, "rkisp1-statistics");
+    rkv4l2src->phy_subdev =
+        gst_media_find_entity_by_name (rkv4l2src->controller,
+        "rockchip-sy-mipi-dphy");
+    /* assume the last enity is sensor_subdev */
+    rkv4l2src->sensor_subdev = gst_media_get_last_entity (rkv4l2src->controller);
+
+    if (strcmp (rkv4l2src->v4l2object->videodev,
+            media_entity_get_devname (rkv4l2src->main_path)))
+      GST_INFO_OBJECT (rkv4l2src, "Using ISP self path");
+    else
+      GST_INFO_OBJECT (rkv4l2src, "Using ISP main path");
+  } else if (strstr((char*)(capability.driver), "cif")) {
+    GST_INFO_OBJECT (rkv4l2src, "Using CIF media node");
+  } else if (strstr((char*)(capability.driver), "uvc")) {
+    GST_INFO_OBJECT (rkv4l2src, "Using UVC media node");
+  } else {
+    GST_INFO_OBJECT (rkv4l2src, "Using unknow media node");
+  }
   return TRUE;
 }
 
@@ -773,6 +832,14 @@ gst_rkv4l2src_change_state (GstElement * element, GstStateChange transition)
       /* open the device */
       if (!gst_v4l2_object_open (obj))
         return GST_STATE_CHANGE_FAILURE;
+      break;
+      case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
+      /* 3A should be stopped before stoping capture */
+      
+      break;
+    case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+      /* 3A should be stopped before stoping capture */
+      
       break;
     default:
       break;

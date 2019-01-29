@@ -36,6 +36,7 @@
 
 #include "ext/videodev2.h"
 #include "gstv4l2object.h"
+#include "common.h"
 
 #include "gst/gst-i18n-plugin.h"
 
@@ -462,6 +463,8 @@ gst_v4l2_object_new (GstElement * element,
     v4l2object->mmap = mmap;
     v4l2object->munmap = munmap;
   }
+
+  rk_common_new (v4l2object);
 
   return v4l2object;
 }
@@ -2703,7 +2706,7 @@ gst_v4l2_object_is_dmabuf_supported (GstV4l2Object * v4l2object)
 static gboolean
 gst_v4l2_object_setup_pool (GstV4l2Object * v4l2object, GstCaps * caps)
 {
-  GstRKV4l2IOMode mode;
+  GstV4l2IOMode mode;
 
   GST_DEBUG_OBJECT (v4l2object->dbg_obj, "initializing the %s system",
       V4L2_TYPE_IS_OUTPUT (v4l2object->type) ? "output" : "capture");

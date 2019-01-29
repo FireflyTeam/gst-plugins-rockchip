@@ -5,6 +5,8 @@ v4l2_sources = [
   'gstv4l2bufferpool.c',
   'gstrkv4l2src.c',
   'gstv4l2transform.c',
+  'ext/mediactl.c',
+  'media-controller.c',
   'v4l2_calls.c',
   'v4l2-utils.c'
 ]

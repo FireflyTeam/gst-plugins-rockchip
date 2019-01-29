@@ -26,6 +26,7 @@
 
 #include <gstv4l2object.h>
 #include <gstv4l2bufferpool.h>
+#include "media-controller.h"
 
 G_BEGIN_DECLS
 
@@ -67,6 +68,16 @@ struct _GstRKV4l2Src
   /* Timestamp sanity check */
   GstClockTime last_timestamp;
   gboolean has_bad_timestamp;
+
+  /* media controller */
+  GstMediaController *controller;
+  GstMediaEntity *main_path;
+  GstMediaEntity *self_path;
+  GstMediaEntity *isp_subdev;
+  GstMediaEntity *isp_params_dev;
+  GstMediaEntity *isp_stats_dev;
+  GstMediaEntity *phy_subdev;
+  GstMediaEntity *sensor_subdev;
 };
 
 struct _GstRKV4l2SrcClass

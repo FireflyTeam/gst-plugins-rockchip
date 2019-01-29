@@ -27,8 +27,21 @@
 #include "ext/videodev2.h"
 #ifdef HAVE_LIBV4L2
 #  include <libv4l2.h>
+#else
+#  include "ext/videodev2.h"
+#  include <sys/ioctl.h>
+#  include <sys/mman.h>
+#  include <unistd.h>
+#  define v4l2_fd_open(fd, flags) (fd)
+#  define v4l2_close    close
+#  define v4l2_dup      dup
+#  define v4l2_ioctl    ioctl
+#  define v4l2_read     read
+#  define v4l2_mmap     mmap
+#  define v4l2_munmap   munmap
 #endif
 
+#include "common.h"
 #include "v4l2-utils.h"
 
 #include <gst/gst.h>
@@ -62,7 +75,7 @@ typedef enum {
   GST_V4L2_IO_USERPTR       = 3,
   GST_V4L2_IO_DMABUF        = 4,
   GST_V4L2_IO_DMABUF_IMPORT = 5
-} GstRKV4l2IOMode;
+} GstV4l2IOMode;
 
 typedef gboolean  (*GstV4l2GetInOutFunction)  (GstV4l2Object * v4l2object, gint * input);
 typedef gboolean  (*GstV4l2SetInOutFunction)  (GstV4l2Object * v4l2object, gint input);
@@ -121,7 +134,7 @@ struct _GstV4l2Object {
 
   /* the video-device's file descriptor */
   gint video_fd;
-  GstRKV4l2IOMode mode;
+  GstV4l2IOMode mode;
 
   gboolean active;
   gboolean streaming;
@@ -156,7 +169,7 @@ struct _GstV4l2Object {
   guint32 min_buffers;
 
   /* wanted mode */
-  GstRKV4l2IOMode req_mode;
+  GstV4l2IOMode req_mode;
 
   /* optional pool */
   GstBufferPool *pool;
@@ -212,6 +225,8 @@ struct _GstV4l2Object {
    * on slow USB firmwares. When this is set, gst_v4l2_set_format() will modify
    * the caps to reflect what was negotiated during fixation */
   gboolean skip_try_fmt_probes;
+
+  RK_V4L2_OBJECT
 };
 
 struct _GstV4l2ObjectClassHelper {
@@ -236,7 +251,8 @@ GType gst_v4l2_object_get_type (void);
     PROP_CAPTURE_IO_MODE,     \
     PROP_EXTRA_CONTROLS,      \
     PROP_PIXEL_ASPECT_RATIO,  \
-    PROP_FORCE_ASPECT_RATIO
+    PROP_FORCE_ASPECT_RATIO,  \
+    RK_V4L2_OBJECT_PROPS
 
 /* create/destroy */
 GstV4l2Object*  gst_v4l2_object_new       (GstElement * element,
