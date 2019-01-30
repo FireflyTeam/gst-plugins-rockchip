@@ -99,7 +99,7 @@ rk_common_install_rockchip_properties_helper (GObjectClass * gobject_class)
   /* isp */
   g_object_class_install_property (gobject_class, PROP_3A_MODE,
       g_param_spec_enum ("isp-mode", "ISP 3A mode", " ",
-          GST_TYPE_RK_3A_MODE, RK_3A_DISABLE,
+          GST_TYPE_RK_3A_MODE, RK_3A_AEAWB,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (gobject_class, PROP_XML_FILE,

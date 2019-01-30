@@ -51,7 +51,7 @@
 
 #include "common.h"
 #include "gstrkv4l2src.h"
-
+#include "rkisp/rkisp_control_loop.h"
 #include "gst/gst-i18n-plugin.h"
 
 GST_DEBUG_CATEGORY (rkv4l2src_debug);
@@ -192,6 +192,11 @@ gst_rkv4l2src_init (GstRKV4l2Src * rkv4l2src)
 static void
 gst_rkv4l2src_finalize (GstRKV4l2Src * rkv4l2src)
 {
+  void *rkisp_engine = rkv4l2src->rkisp_engine;
+
+  if (rkisp_engine)
+    rkisp_cl_deinit (rkisp_engine);
+
   gst_v4l2_object_destroy (rkv4l2src->v4l2object);
 
   G_OBJECT_CLASS (parent_class)->finalize ((GObject *) (rkv4l2src));
@@ -721,7 +726,9 @@ static gboolean
 gst_rkv4l2src_start (GstBaseSrc * src)
 {
   GstRKV4l2Src *rkv4l2src = GST_RKV4L2SRC (src);
+  void *rkisp_engine;
   struct v4l2_capability capability;
+  struct rkisp_cl_prepare_params_s params = {0};
   int fd;
 
   rkv4l2src->offset = 0;
@@ -747,12 +754,16 @@ gst_rkv4l2src_start (GstBaseSrc * src)
   close(fd);
 
   if (strstr((char*)(capability.driver), "rkisp")) {
+    /* rkisp init */
+    rkisp_cl_init (&rkisp_engine, rkv4l2src->v4l2object->xml_path, NULL);
+    rkv4l2src->rkisp_engine = rkisp_engine;
+
     rkv4l2src->controller =
         gst_media_controller_new_by_vnode (rkv4l2src->v4l2object->videodev);
     if (!rkv4l2src->controller){
       GST_DEBUG_OBJECT (rkv4l2src,
           "Can't find controller, maybe use a wrong video-node or wrong permission to media node");
-        return FALSE;
+      return FALSE;
     }
 
     rkv4l2src->main_path =
@@ -766,9 +777,9 @@ gst_rkv4l2src_start (GstBaseSrc * src)
         "rkisp1-input-params");
     rkv4l2src->isp_stats_dev =
         gst_media_find_entity_by_name (rkv4l2src->controller, "rkisp1-statistics");
-    rkv4l2src->phy_subdev =
+    /*rkv4l2src->phy_subdev =
         gst_media_find_entity_by_name (rkv4l2src->controller,
-        "rockchip-sy-mipi-dphy");
+        "rockchip-sy-mipi-dphy");*/
     /* assume the last enity is sensor_subdev */
     rkv4l2src->sensor_subdev = gst_media_get_last_entity (rkv4l2src->controller);
 
@@ -777,6 +788,13 @@ gst_rkv4l2src_start (GstBaseSrc * src)
       GST_INFO_OBJECT (rkv4l2src, "Using ISP self path");
     else
       GST_INFO_OBJECT (rkv4l2src, "Using ISP main path");
+    params.isp_sd_node_path = media_entity_get_devname (rkv4l2src->isp_subdev);
+    params.isp_vd_params_path = media_entity_get_devname (rkv4l2src->isp_params_dev);
+    params.isp_vd_stats_path = media_entity_get_devname (rkv4l2src->isp_stats_dev);
+    params.sensor_sd_node_path = media_entity_get_devname (rkv4l2src->sensor_subdev);
+    rkisp_cl_prepare (rkisp_engine, &params);
+    rkisp_cl_start (rkisp_engine);
+    gst_media_controller_delete (rkv4l2src->controller);
   } else if (strstr((char*)(capability.driver), "cif")) {
     GST_INFO_OBJECT (rkv4l2src, "Using CIF media node");
   } else if (strstr((char*)(capability.driver), "uvc")) {
@@ -826,6 +844,9 @@ gst_rkv4l2src_change_state (GstElement * element, GstStateChange transition)
   GstStateChangeReturn ret = GST_STATE_CHANGE_SUCCESS;
   GstRKV4l2Src *rkv4l2src = GST_RKV4L2SRC (element);
   GstV4l2Object *obj = rkv4l2src->v4l2object;
+  void *rkisp_engine = NULL;
+
+  rkisp_engine = rkv4l2src->rkisp_engine;
 
   switch (transition) {
     case GST_STATE_CHANGE_NULL_TO_READY:
@@ -835,11 +856,12 @@ gst_rkv4l2src_change_state (GstElement * element, GstStateChange transition)
       break;
       case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
       /* 3A should be stopped before stoping capture */
-      
+      if (rkisp_engine)
+        rkisp_cl_stop (rkisp_engine);
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
       /* 3A should be stopped before stoping capture */
-      
+      /* rkisp_cl_start() remove to gst_rkv4l2src_start()*/
       break;
     default:
       break;

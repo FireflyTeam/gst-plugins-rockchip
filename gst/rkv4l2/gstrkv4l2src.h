@@ -78,6 +78,7 @@ struct _GstRKV4l2Src
   GstMediaEntity *isp_stats_dev;
   GstMediaEntity *phy_subdev;
   GstMediaEntity *sensor_subdev;
+  void *rkisp_engine;
 };
 
 struct _GstRKV4l2SrcClass
