@@ -17,6 +17,8 @@
 #ifndef _RKISP_CONTROL_LOOP_H_
 #define _RKISP_CONTROL_LOOP_H_
 
+#include <stdint.h>
+
 typedef uint32_t metadata_size_t;
 typedef uint32_t metadata_uptrdiff_t;
 struct camera_metadata {
