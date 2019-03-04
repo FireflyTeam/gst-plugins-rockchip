@@ -21,9 +21,6 @@ libgstrkv4l2_la_CFLAGS =   $(GST_PLUGINS_BASE_CFLAGS) \
 				 $(LIBV4L2_CFLAGS) \
 				 $(GUDEV_CFLAGS)
 
-libgstrkv4l2_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) \
-				-L$(top_srcdir)/gst-libs/rkisp
-
 libgstrkv4l2_la_LIBADD =   $(GST_PLUGINS_BASE_LIBS) \
 				 -lgstallocators-$(GST_API_VERSION) \
 				 -lgstvideo-$(GST_API_VERSION) \

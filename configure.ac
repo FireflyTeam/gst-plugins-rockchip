@@ -391,7 +391,6 @@ AC_CONFIG_FILES(
 Makefile
 gst-libs/Makefile
 gst-libs/gst/Makefile
-gst-libs/rkisp/Makefile
 gst/Makefile
 gst/rkv4l2/Makefile
 common/Makefile
