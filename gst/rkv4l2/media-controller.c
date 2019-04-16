@@ -94,3 +94,25 @@ gst_media_get_last_entity (GstMediaController * controller)
 
   return entity;
 }
+
+GstMediaEntity *
+gst_media_find_sensor_entity (GstMediaController * controller)
+{
+  const struct media_entity_desc *ef;
+  struct media_entity *e;
+  int nents, i;
+
+  /* TODO: Get ACTIVE subdev sensor. This implementation simply
+   *       return the first sensor subdev.
+   */
+  nents = media_get_entities_count(controller->device);
+  for (i = 0; i < nents; ++i) {
+    e = media_get_entity(controller->device, i);
+    ef = media_entity_get_info(e);
+    if (ef->type == MEDIA_ENT_T_V4L2_SUBDEV_SENSOR) {
+      return e;
+    }
+  }
+
+  return NULL;
+}

@@ -49,5 +49,8 @@ void gst_media_controller_delete (GstMediaController * controller);
 GstMediaEntity *gst_media_find_entity_by_name (GstMediaController * controller,
     const gchar * dev_name);
 GstMediaEntity *gst_media_get_last_entity (GstMediaController * controller);
+
+GstMediaEntity *gst_media_find_sensor_entity (GstMediaController * controller);
+
 G_END_DECLS
 #endif

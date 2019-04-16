@@ -780,8 +780,12 @@ gst_rkv4l2src_start (GstBaseSrc * src)
     /*rkv4l2src->phy_subdev =
         gst_media_find_entity_by_name (rkv4l2src->controller,
         "rockchip-sy-mipi-dphy");*/
-    /* assume the last enity is sensor_subdev */
-    rkv4l2src->sensor_subdev = gst_media_get_last_entity (rkv4l2src->controller);
+
+    rkv4l2src->sensor_subdev = gst_media_find_sensor_entity(rkv4l2src->controller);
+    if (!rkv4l2src->sensor_subdev) {
+        GST_ERROR_OBJECT (rkv4l2src, "Can't get sensor subdev from media device");
+        return FALSE;
+    }
 
     if (strcmp (rkv4l2src->v4l2object->videodev,
             media_entity_get_devname (rkv4l2src->main_path)))
