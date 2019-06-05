@@ -791,8 +791,9 @@ gst_rkv4l2src_start (GstBaseSrc * src)
     rkv4l2src->lens_subdev = gst_media_find_entity_by_type(
         rkv4l2src->controller, MEDIA_ENT_T_V4L2_SUBDEV_LENS);
     if (!rkv4l2src->lens_subdev) {
-        GST_ERROR_OBJECT (rkv4l2src, "Can't get sensor subdev from media device");
-        return FALSE;
+        GST_ERROR_OBJECT (rkv4l2src, "Can't get lens subdev from media device");
+    } else {
+        params.lens_sd_node_path = media_entity_get_devname (rkv4l2src->lens_subdev);
     }
 
     if (strcmp (rkv4l2src->v4l2object->videodev,
@@ -804,7 +805,6 @@ gst_rkv4l2src_start (GstBaseSrc * src)
     params.isp_vd_params_path = media_entity_get_devname (rkv4l2src->isp_params_dev);
     params.isp_vd_stats_path = media_entity_get_devname (rkv4l2src->isp_stats_dev);
     params.sensor_sd_node_path = media_entity_get_devname (rkv4l2src->sensor_subdev);
-    params.lens_sd_node_path = media_entity_get_devname (rkv4l2src->lens_subdev);
     rkisp_cl_prepare (rkisp_engine, &params);
     rkisp_cl_start (rkisp_engine);
     gst_media_controller_delete (rkv4l2src->controller);
