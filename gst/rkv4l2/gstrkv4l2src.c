@@ -781,8 +781,16 @@ gst_rkv4l2src_start (GstBaseSrc * src)
         gst_media_find_entity_by_name (rkv4l2src->controller,
         "rockchip-sy-mipi-dphy");*/
 
-    rkv4l2src->sensor_subdev = gst_media_find_sensor_entity(rkv4l2src->controller);
+    rkv4l2src->sensor_subdev = gst_media_find_entity_by_type(
+        rkv4l2src->controller, MEDIA_ENT_T_V4L2_SUBDEV_SENSOR);
     if (!rkv4l2src->sensor_subdev) {
+        GST_ERROR_OBJECT (rkv4l2src, "Can't get sensor subdev from media device");
+        return FALSE;
+    }
+
+    rkv4l2src->lens_subdev = gst_media_find_entity_by_type(
+        rkv4l2src->controller, MEDIA_ENT_T_V4L2_SUBDEV_LENS);
+    if (!rkv4l2src->lens_subdev) {
         GST_ERROR_OBJECT (rkv4l2src, "Can't get sensor subdev from media device");
         return FALSE;
     }
@@ -796,6 +804,7 @@ gst_rkv4l2src_start (GstBaseSrc * src)
     params.isp_vd_params_path = media_entity_get_devname (rkv4l2src->isp_params_dev);
     params.isp_vd_stats_path = media_entity_get_devname (rkv4l2src->isp_stats_dev);
     params.sensor_sd_node_path = media_entity_get_devname (rkv4l2src->sensor_subdev);
+    params.lens_sd_node_path = media_entity_get_devname (rkv4l2src->lens_subdev);
     rkisp_cl_prepare (rkisp_engine, &params);
     rkisp_cl_start (rkisp_engine);
     gst_media_controller_delete (rkv4l2src->controller);

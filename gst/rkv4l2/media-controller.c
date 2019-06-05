@@ -96,7 +96,7 @@ gst_media_get_last_entity (GstMediaController * controller)
 }
 
 GstMediaEntity *
-gst_media_find_sensor_entity (GstMediaController * controller)
+gst_media_find_entity_by_type (GstMediaController * controller, __u32 type)
 {
   const struct media_entity_desc *ef;
   struct media_entity *e;
@@ -109,7 +109,7 @@ gst_media_find_sensor_entity (GstMediaController * controller)
   for (i = 0; i < nents; ++i) {
     e = media_get_entity(controller->device, i);
     ef = media_entity_get_info(e);
-    if (ef->type == MEDIA_ENT_T_V4L2_SUBDEV_SENSOR) {
+    if (ef->type == type) {
       return e;
     }
   }
